@@ -1,0 +1,52 @@
+{
+  "appName": { "message": "Job Board Cleaner" },
+  "appDescription": { "message": "Cache les offres d'emploi indésirables des job boards." },
+  "contextMenuBlock": { "message": "Bloquer le texte sélectionné : '%s'" },
+  "statusActive": { "message": "✅ Actif" },
+  "statusInactive": { "message": "❌ Inactif" },
+  "totalHidden": { "message": "Offres masquées au total" },
+  "addBlockTitle": { "message": "Ajouter un mot à bloquer" },
+  "inputPlaceholder": { "message": "Ex: École..." },
+  "btnAdd": { "message": "+" },
+  "btnManageNames": { "message": "Gérer les mots bloqués" },
+  "btnLogs": { "message": "Journal des offres masquées" },
+  "headerBlockedWords": { "message": "Mots bloqués" },
+  "headerLogs": { "message": "Journal" },
+  "headerSettings": { "message": "Paramètres" },
+  "subLog": { "message": "Les 100 dernières offres masquées." },
+  "sectionBlockMode": { "message": "Mode de blocage" },
+  "modeHideTitle": { "message": "Masquer (Recommandé)" },
+  "modeHideDesc": { "message": "Rend l'offre totalement invisible." },
+  "modeFadeTitle": { "message": "Griser" },
+  "modeFadeDesc": { "message": "Rend l'offre transparente." },
+  "sectionBackup": { "message": "Sauvegarde" },
+  "btnExport": { "message": "📤 Exporter la configuration" },
+  "btnImport": { "message": "📥 Importer une configuration" },
+  "sectionAdvanced": { "message": "Avancé (CSS)" },
+  "advancedDesc": { "message": "Sélecteurs CSS personnalisés pour d'autres sites." },
+  "btnReset": { "message": "Tout réinitialiser" },
+  "emptyState": { "message": "Rien ici." },
+  "emptyLog": { "message": "Aucune offre masquée." },
+  "confirmReset": { "message": "Tout effacer (Mots bloqués, réglages, logs) ?" },
+  "confirmImport": { "message": "Importer la configuration ?" },
+  "importSuccess": { "message": "Configuration importée avec succès !" },
+  "importError": { "message": "Erreur lors de la lecture du fichier." },
+  "tooltipBlocked": { 
+    "message": "Masqué à cause du mot : '$WORD$'",
+    "placeholders": {
+      "WORD": {
+        "content": "$1"
+      }
+    }
+  },
+  "toastAdded": { 
+    "message": "Ajouté : $WORD$",
+    "placeholders": {
+      "WORD": {
+        "content": "$1"
+      }
+    }
+  },
+  "undo": { "message": "Annuler" },
+  "back": { "message": "← Retour" }
+}

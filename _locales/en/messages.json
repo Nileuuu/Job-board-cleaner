@@ -1,0 +1,52 @@
+{
+  "appName": { "message": "Job Board Cleaner" },
+  "appDescription": { "message": "Hides unwanted job offers from job boards." },
+  "contextMenuBlock": { "message": "Block selected text: '%s'" },
+  "statusActive": { "message": "✅ Active" },
+  "statusInactive": { "message": "❌ Inactive" },
+  "totalHidden": { "message": "Total offers hidden" },
+  "addBlockTitle": { "message": "Add a keyword to block" },
+  "inputPlaceholder": { "message": "Ex: Internship..." },
+  "btnAdd": { "message": "+" },
+  "btnManageNames": { "message": "Manage blocked words" },
+  "btnLogs": { "message": "Hidden offers log" },
+  "headerBlockedWords": { "message": "Blocked Words" },
+  "headerLogs": { "message": "Log" },
+  "headerSettings": { "message": "Settings" },
+  "subLog": { "message": "Last 100 hidden offers." },
+  "sectionBlockMode": { "message": "Blocking Mode" },
+  "modeHideTitle": { "message": "Hide (Recommended)" },
+  "modeHideDesc": { "message": "Makes the offer completely invisible." },
+  "modeFadeTitle": { "message": "Fade" },
+  "modeFadeDesc": { "message": "Makes the offer semi-transparent." },
+  "sectionBackup": { "message": "Backup" },
+  "btnExport": { "message": "📤 Export configuration" },
+  "btnImport": { "message": "📥 Import configuration" },
+  "sectionAdvanced": { "message": "Advanced (CSS)" },
+  "advancedDesc": { "message": "Custom CSS selectors for other sites." },
+  "btnReset": { "message": "Reset everything" },
+  "emptyState": { "message": "Nothing here." },
+  "emptyLog": { "message": "No offers hidden yet." },
+  "confirmReset": { "message": "Clear everything (Keywords, settings, logs)?" },
+  "confirmImport": { "message": "Import configuration?" },
+  "importSuccess": { "message": "Configuration imported successfully!" },
+  "importError": { "message": "Error reading file." },
+  "tooltipBlocked": { 
+    "message": "Hidden due to: '$WORD$'",
+    "placeholders": {
+      "WORD": {
+        "content": "$1"
+      }
+    }
+  },
+  "toastAdded": { 
+    "message": "Added: $WORD$",
+    "placeholders": {
+      "WORD": {
+        "content": "$1"
+      }
+    }
+  },
+  "undo": { "message": "Undo" },
+  "back": { "message": "← Back" }
+}

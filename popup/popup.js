@@ -1,4 +1,20 @@
 document.addEventListener('DOMContentLoaded', () => {
+  // --- I18N INITIALIZATION ---
+  function localizeHtml() {
+    const elements = document.querySelectorAll('[data-i18n]');
+    elements.forEach(el => {
+      const key = el.getAttribute('data-i18n');
+      const msg = chrome.i18n.getMessage(key);
+      if (msg) el.textContent = msg;
+    });
+    
+    // Placeholders
+    const inputName = document.getElementById('newNameInput');
+    if (inputName) inputName.placeholder = chrome.i18n.getMessage('inputPlaceholder');
+  }
+  localizeHtml();
+
+  // --- REFERENCES ---
   const views = {
     add: document.getElementById('addView'),
     names: document.getElementById('namesView'),
@@ -7,31 +23,30 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   const elements = {
-    // Main & Counters
     totalCounter: document.getElementById('totalCounter'),
     newNameInput: document.getElementById('newNameInput'),
     addButton: document.getElementById('addButton'),
     toggleEnabled: document.getElementById('toggleEnabled'),
     statusBadge: document.getElementById('statusBadge'),
     
-    // Lists
     blockedNamesList: document.getElementById('blockedNamesList'),
     blockedOffersLog: document.getElementById('blockedOffersLog'),
     
-    // Settings
     modeHide: document.getElementById('modeHide'),
     modeFade: document.getElementById('modeFade'),
     exportButton: document.getElementById('exportButton'),
     importButton: document.getElementById('importButton'),
     importFileInput: document.getElementById('importFileInput'),
     
-    // Advanced
     newSelectorInput: document.getElementById('newSelectorInput'),
     addSelectorButton: document.getElementById('addSelectorButton'),
     customSelectorsList: document.getElementById('customSelectorsList'),
-
-    // Danger
-    clearDataButton: document.getElementById('clearDataButton')
+    clearDataButton: document.getElementById('clearDataButton'),
+    
+    // TOAST / UNDO
+    toastMessage: document.getElementById('toastMessage'),
+    toastText: document.getElementById('toastText'),
+    toastUndo: document.getElementById('toastUndo')
   };
 
   const navigation = {
@@ -43,6 +58,27 @@ document.addEventListener('DOMContentLoaded', () => {
     backFromSettings: document.getElementById('backFromSettingsButton')
   };
 
+  // --- TOAST UNDO SYSTEM ---
+  let undoTimeout;
+  function showUndoToast(wordAdded) {
+    const msg = chrome.i18n.getMessage('toastAdded', wordAdded) || `Added: ${wordAdded}`;
+    elements.toastText.textContent = msg;
+    elements.toastMessage.style.display = 'flex';
+    elements.toastMessage.classList.add('visible');
+    
+    // Setup Undo Action
+    elements.toastUndo.onclick = () => {
+      deleteName(wordAdded);
+      elements.toastMessage.style.display = 'none';
+    };
+
+    clearTimeout(undoTimeout);
+    undoTimeout = setTimeout(() => {
+      elements.toastMessage.style.display = 'none';
+    }, 4000);
+  }
+
+  // --- NAVIGATION ---
   function showView(viewName) {
     Object.values(views).forEach(view => view.classList.remove('active'));
     views[viewName].classList.add('active');
@@ -56,41 +92,36 @@ document.addEventListener('DOMContentLoaded', () => {
     btn.addEventListener('click', () => showView('add'))
   );
 
+  // --- STATUS & SETTINGS ---
   function updateStatusUI(isEnabled) {
     elements.toggleEnabled.checked = isEnabled;
     if (isEnabled) {
-      elements.statusBadge.textContent = '✅ Actif';
+      elements.statusBadge.textContent = chrome.i18n.getMessage('statusActive');
       elements.statusBadge.className = 'status-badge active';
     } else {
-      elements.statusBadge.textContent = '❌ Inactif';
+      elements.statusBadge.textContent = chrome.i18n.getMessage('statusInactive');
       elements.statusBadge.className = 'status-badge inactive';
     }
   }
 
   chrome.storage.sync.get(['isEnabled', 'blockMode'], (result) => {
     if (chrome.runtime.lastError) return;
-    
-    const isEnabled = result.isEnabled ?? true;
-    updateStatusUI(isEnabled);
-    
-    const blockMode = result.blockMode || 'hide';
-    if (blockMode === 'fade') elements.modeFade.checked = true;
+    updateStatusUI(result.isEnabled ?? true);
+    if ((result.blockMode || 'hide') === 'fade') elements.modeFade.checked = true;
     else elements.modeHide.checked = true;
   });
 
   elements.toggleEnabled.addEventListener('change', () => {
-    const newStatus = elements.toggleEnabled.checked;
-    chrome.storage.sync.set({ isEnabled: newStatus }, () => updateStatusUI(newStatus));
+    chrome.storage.sync.set({ isEnabled: elements.toggleEnabled.checked }, () => updateStatusUI(elements.toggleEnabled.checked));
   });
 
   const updateMode = (mode) => chrome.storage.sync.set({ blockMode: mode });
   elements.modeHide.addEventListener('change', () => { if (elements.modeHide.checked) updateMode('hide'); });
   elements.modeFade.addEventListener('change', () => { if (elements.modeFade.checked) updateMode('fade'); });
 
+  // --- BLOCKED NAMES ---
   function loadAndRenderNamesList() {
-    chrome.storage.sync.get(['blockedNames'], (result) => {
-      if (!chrome.runtime.lastError) renderList(result.blockedNames || [], elements.blockedNamesList, deleteName);
-    });
+    chrome.storage.sync.get(['blockedNames'], (result) => renderList(result.blockedNames || [], elements.blockedNamesList, deleteName));
   }
 
   function addName() {
@@ -100,24 +131,23 @@ document.addEventListener('DOMContentLoaded', () => {
       const names = result.blockedNames || [];
       if (!names.some(n => n.toLowerCase() === val.toLowerCase())) {
         names.push(val);
-        saveNames(names);
+        names.sort((a, b) => a.localeCompare(b));
+        chrome.storage.sync.set({ blockedNames: names }, () => {
+          elements.newNameInput.value = '';
+          showUndoToast(val); // UX : Toast
+        });
       }
-      elements.newNameInput.value = '';
     });
   }
 
   function deleteName(val) {
     chrome.storage.sync.get(['blockedNames'], (result) => {
       const names = (result.blockedNames || []).filter(n => n !== val);
-      saveNames(names);
+      chrome.storage.sync.set({ blockedNames: names }, loadAndRenderNamesList);
     });
   }
 
-  function saveNames(names) {
-    names.sort((a, b) => a.localeCompare(b));
-    chrome.storage.sync.set({ blockedNames: names }, () => loadAndRenderNamesList());
-  }
-
+  // --- LOGS & HELPERS ---
   function loadTotalCounter() {
     chrome.storage.local.get(['totalBlockedCount'], (result) => {
       if (!chrome.runtime.lastError) elements.totalCounter.textContent = String(result.totalBlockedCount || 0);
@@ -129,7 +159,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const log = result.blockedOffersLog || [];
       elements.blockedOffersLog.innerHTML = '';
       if (log.length === 0) {
-        elements.blockedOffersLog.innerHTML = '<li class="empty-state">Aucune offre masquée.</li>';
+        elements.blockedOffersLog.innerHTML = `<li class="empty-state">${chrome.i18n.getMessage('emptyLog')}</li>`;
         return;
       }
       const fragment = document.createDocumentFragment();
@@ -142,38 +172,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  function loadCustomSelectors() {
-    chrome.storage.sync.get(['customSelectors'], (result) => {
-       renderList(result.customSelectors || [], elements.customSelectorsList, deleteSelector);
-    });
-  }
-
-  function addSelector() {
-    const val = elements.newSelectorInput.value.trim();
-    if (!val) return;
-    chrome.storage.sync.get(['customSelectors'], (result) => {
-      const sels = result.customSelectors || [];
-      if (!sels.includes(val)) {
-        sels.push(val);
-        chrome.storage.sync.set({ customSelectors: sels }, () => {
-            loadCustomSelectors();
-            elements.newSelectorInput.value = '';
-        });
-      }
-    });
-  }
-
-  function deleteSelector(val) {
-    chrome.storage.sync.get(['customSelectors'], (result) => {
-      const sels = (result.customSelectors || []).filter(s => s !== val);
-      chrome.storage.sync.set({ customSelectors: sels }, loadCustomSelectors);
-    });
-  }
-
   function renderList(items, container, deleteCallback) {
     container.innerHTML = '';
     if (items.length === 0) {
-      container.innerHTML = '<li class="empty-state">Rien ici.</li>';
+      container.innerHTML = `<li class="empty-state">${chrome.i18n.getMessage('emptyState')}</li>`;
       return;
     }
     const fragment = document.createDocumentFragment();
@@ -192,13 +194,35 @@ document.addEventListener('DOMContentLoaded', () => {
     container.appendChild(fragment);
   }
 
+  // --- CUSTOM SELECTORS ---
+  function loadCustomSelectors() {
+    chrome.storage.sync.get(['customSelectors'], (result) => renderList(result.customSelectors || [], elements.customSelectorsList, deleteSelector));
+  }
+  function addSelector() {
+    const val = elements.newSelectorInput.value.trim();
+    if (!val) return;
+    chrome.storage.sync.get(['customSelectors'], (result) => {
+      const sels = result.customSelectors || [];
+      if (!sels.includes(val)) {
+        sels.push(val);
+        chrome.storage.sync.set({ customSelectors: sels }, () => {
+            loadCustomSelectors();
+            elements.newSelectorInput.value = '';
+        });
+      }
+    });
+  }
+  function deleteSelector(val) {
+    chrome.storage.sync.get(['customSelectors'], (result) => {
+      const sels = (result.customSelectors || []).filter(s => s !== val);
+      chrome.storage.sync.set({ customSelectors: sels }, loadCustomSelectors);
+    });
+  }
+
+  // --- IMPORT / EXPORT / RESET ---
   elements.exportButton.addEventListener('click', () => {
     chrome.storage.sync.get(null, (syncData) => {
-      const exportData = {
-        version: 1,
-        timestamp: new Date().toISOString(),
-        settings: syncData
-      };
+      const exportData = { version: 1, timestamp: new Date().toISOString(), settings: syncData };
       const blob = new Blob([JSON.stringify(exportData, null, 2)], {type : 'application/json'});
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -217,38 +241,30 @@ document.addEventListener('DOMContentLoaded', () => {
     reader.onload = (event) => {
       try {
         const data = JSON.parse(event.target.result);
-        if (data.settings) {
-          if (confirm(`Importer la configuration du ${new Date(data.timestamp).toLocaleDateString()} ?\nCela remplacera vos réglages actuels.`)) {
-            chrome.storage.sync.set(data.settings, () => {
-              alert("Configuration importée avec succès !");
-              window.location.reload();
-            });
-          }
+        if (data.settings && confirm(chrome.i18n.getMessage('confirmImport'))) {
+          chrome.storage.sync.set(data.settings, () => {
+            alert(chrome.i18n.getMessage('importSuccess'));
+            window.location.reload();
+          });
         } else {
-          alert("Format de fichier invalide.");
+          alert(chrome.i18n.getMessage('importError'));
         }
-      } catch (err) {
-        alert("Erreur lors de la lecture du fichier.");
-      }
+      } catch (err) { alert(chrome.i18n.getMessage('importError')); }
     };
     reader.readAsText(file);
   });
 
   elements.clearDataButton.addEventListener('click', () => {
-    if (confirm("Tout effacer (Mots bloqués, réglages, logs) ?")) {
-      chrome.storage.sync.clear(() => {
-        chrome.storage.local.clear(() => window.location.reload());
-      });
+    if (confirm(chrome.i18n.getMessage('confirmReset'))) {
+      chrome.storage.sync.clear(() => chrome.storage.local.clear(() => window.location.reload()));
     }
   });
 
+  // --- INIT ---
   loadTotalCounter();
   elements.addButton.addEventListener('click', addName);
   elements.newNameInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') addName(); });
   elements.addSelectorButton.addEventListener('click', addSelector);
   elements.newSelectorInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') addSelector(); });
-
-  chrome.storage.onChanged.addListener((changes, namespace) => {
-    if (namespace === 'local' && changes.totalBlockedCount) loadTotalCounter();
-  });
+  chrome.storage.onChanged.addListener((changes, namespace) => { if (namespace === 'local' && changes.totalBlockedCount) loadTotalCounter(); });
 });

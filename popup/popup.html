@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html>
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,38 +11,42 @@
     
     <header class="main-header">
       <div class="header-title">
-        <h1 class="main-title">Job Board Cleaner</h1>
-        <span class="status-badge active" id="statusBadge">✅ Actif</span>
+        <h1 class="main-title" data-i18n="appName">Job Board Cleaner</h1>
+        <span class="status-badge active" id="statusBadge" data-i18n="statusActive">✅ Actif</span>
       </div>
       <div class="header-controls">
-        <label class="toggle-switch" title="Activer/Désactiver le filtrage">
+        <label class="toggle-switch">
           <input type="checkbox" id="toggleEnabled">
           <span class="slider"></span>
         </label>
-        <button id="goToSettingsButton" class="futuristic-button icon-button" title="Paramètres">⚙️</button>
+        <button id="goToSettingsButton" class="futuristic-button icon-button">⚙️</button>
       </div>
     </header>
 
     <div id="addView" class="view active">
       <div class="card counter-card gradient-border">
-        <div class="counter-label">Offres masquées au total</div>
+        <div class="counter-label" data-i18n="totalHidden">Offres masquées</div>
         <div id="totalCounter" class="counter-value">0</div>
       </div>
 
       <div class="card input-card">
-        <h2 class="section-title">Ajouter un mot à bloquer</h2>
+        <h2 class="section-title" data-i18n="addBlockTitle">Ajouter un mot</h2>
         <div class="add-section">
-          <input type="text" id="newNameInput" placeholder="Ex: École..." class="futuristic-input">
-          <button id="addButton" title="Ajouter" class="futuristic-button">+</button>
+          <input type="text" id="newNameInput" class="futuristic-input">
+          <button id="addButton" class="futuristic-button" data-i18n="btnAdd">+</button>
+        </div>
+        <div id="toastMessage" class="toast-message" style="display:none;">
+          <span id="toastText"></span>
+          <button id="toastUndo" class="toast-undo" data-i18n="undo">Annuler</button>
         </div>
       </div>
 
       <div class="nav-card">
         <button id="goToNamesButton" class="futuristic-button full-width">
-          Gérer les mots bloqués <span class="icon">→</span>
+          <span data-i18n="btnManageNames">Gérer les mots</span> <span class="icon">→</span>
         </button>
         <button id="goToLogButton" class="futuristic-button full-width">
-          Journal des offres masquées <span class="icon">→</span>
+          <span data-i18n="btnLogs">Journal</span> <span class="icon">→</span>
         </button>
       </div>
 
@@ -55,78 +59,73 @@
 
     <div id="namesView" class="view">
       <header class="sub-header">
-        <button id="backFromNamesButton" class="futuristic-button small-button">← Retour</button>
-        <h1 class="sub-title">Mots bloqués</h1>
+        <button id="backFromNamesButton" class="futuristic-button small-button" data-i18n="back">← Retour</button>
+        <h1 class="sub-title" data-i18n="headerBlockedWords">Mots bloqués</h1>
       </header>
       <div class="card list-card scrollable-list">
-        <ul id="blockedNamesList" class="blocked-list">
-          <li class="empty-state">Chargement...</li>
-        </ul>
+        <ul id="blockedNamesList" class="blocked-list"></ul>
       </div>
     </div>
 
     <div id="logView" class="view">
       <header class="sub-header">
-        <button id="backFromLogButton" class="futuristic-button small-button">← Retour</button>
-        <h1 class="sub-title">Journal</h1>
+        <button id="backFromLogButton" class="futuristic-button small-button" data-i18n="back">← Retour</button>
+        <h1 class="sub-title" data-i18n="headerLogs">Journal</h1>
       </header>
-      <p class="subtitle">Les 100 dernières offres masquées.</p>
+      <p class="subtitle" data-i18n="subLog">Les 100 dernières offres.</p>
       <div class="card list-card scrollable-list">
-        <ul id="blockedOffersLog" class="blocked-list log-list">
-          <li class="empty-state">Aucune offre masquée.</li>
-        </ul>
+        <ul id="blockedOffersLog" class="blocked-list log-list"></ul>
       </div>
     </div>
 
     <div id="settingsView" class="view">
       <header class="sub-header">
-        <button id="backFromSettingsButton" class="futuristic-button small-button">← Retour</button>
-        <h1 class="sub-title">Paramètres</h1>
+        <button id="backFromSettingsButton" class="futuristic-button small-button" data-i18n="back">← Retour</button>
+        <h1 class="sub-title" data-i18n="headerSettings">Paramètres</h1>
       </header>
       
       <div class="card">
-        <h2 class="section-title" style="text-align: left; margin-bottom: 15px;">Mode de blocage</h2>
+        <h2 class="section-title" style="text-align: left; margin-bottom: 15px;" data-i18n="sectionBlockMode">Mode</h2>
         <div class="setting-option-group">
           <label class="setting-option">
             <input type="radio" id="modeHide" name="blockMode" value="hide">
             <div class="option-content">
-              <strong>Masquer</strong>
-              <span>Invisible (Recommandé).</span>
+              <strong data-i18n="modeHideTitle">Masquer</strong>
+              <span data-i18n="modeHideDesc">Invisible.</span>
             </div>
           </label>
           <label class="setting-option">
             <input type="radio" id="modeFade" name="blockMode" value="fade">
             <div class="option-content">
-              <strong>Griser</strong>
-              <span>Semi-transparent.</span>
+              <strong data-i18n="modeFadeTitle">Griser</strong>
+              <span data-i18n="modeFadeDesc">Transparent.</span>
             </div>
           </label>
         </div>
       </div>
 
       <div class="card">
-        <h2 class="section-title" style="text-align: left;">Sauvegarde</h2>
+        <h2 class="section-title" style="text-align: left;" data-i18n="sectionBackup">Sauvegarde</h2>
         <div class="add-section" style="flex-direction: column; gap: 10px;">
-           <button id="exportButton" class="futuristic-button full-width">📤 Exporter la configuration</button>
-           <button id="importButton" class="futuristic-button full-width">📥 Importer une configuration</button>
+           <button id="exportButton" class="futuristic-button full-width" data-i18n="btnExport">Export</button>
+           <button id="importButton" class="futuristic-button full-width" data-i18n="btnImport">Import</button>
            <input type="file" id="importFileInput" accept=".json" style="display: none;">
         </div>
       </div>
 
       <div class="card">
-        <h2 class="section-title" style="text-align: left;">Avancé (CSS)</h2>
-        <p class="subtitle" style="text-align: left; margin-bottom: 8px;">Ajouter des sélecteurs CSS personnalisés pour détecter des offres sur d'autres sites.</p>
+        <h2 class="section-title" style="text-align: left;" data-i18n="sectionAdvanced">Avancé</h2>
+        <p class="subtitle" style="text-align: left; margin-bottom: 8px;" data-i18n="advancedDesc">Sélecteurs CSS.</p>
         <div class="add-section">
-          <input type="text" id="newSelectorInput" placeholder=".ma-classe-job" class="futuristic-input">
-          <button id="addSelectorButton" title="Ajouter" class="futuristic-button">+</button>
+          <input type="text" id="newSelectorInput" placeholder=".job-card" class="futuristic-input">
+          <button id="addSelectorButton" class="futuristic-button" data-i18n="btnAdd">+</button>
         </div>
-        <ul id="customSelectorsList" class="blocked-list" style="margin-top: 10px;">
-           </ul>
+        <ul id="customSelectorsList" class="blocked-list" style="margin-top: 10px;"></ul>
       </div>
       
       <div class="card danger-zone">
-        <button id="clearDataButton" class="futuristic-button danger-button">
-          Tout réinitialiser
+        <button id="clearDataButton" class="futuristic-button danger-button" data-i18n="btnReset">
+          Réinitialiser
         </button>
       </div>
     </div>

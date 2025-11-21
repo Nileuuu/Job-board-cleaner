@@ -451,3 +451,35 @@ input:checked + .slider:before {
 .bmc-image:hover {
   transform: scale(1.05);
 }
+
+.toast-message {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #4a3363;
+  border: 1px solid #8c4bff;
+  padding: 8px 12px;
+  border-radius: 8px;
+  margin-top: 10px;
+  font-size: 13px;
+  animation: fadeIn 0.3s ease;
+}
+
+.toast-undo {
+  background: none;
+  border: none;
+  color: #00e0ff;
+  font-weight: bold;
+  cursor: pointer;
+  text-decoration: underline;
+  margin-left: 10px;
+}
+
+.toast-undo:hover {
+  color: #fff;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}

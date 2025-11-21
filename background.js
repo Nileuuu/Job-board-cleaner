@@ -1,7 +1,7 @@
 chrome.runtime.onInstalled.addListener(() => {
   chrome.contextMenus.create({
     id: "blockSelection",
-    title: "Bloquer le texte sélectionné : '%s'",
+    title: chrome.i18n.getMessage("contextMenuBlock"),
     contexts: ["selection"]
   });
   chrome.action.setBadgeBackgroundColor({ color: '#d11a2a' });

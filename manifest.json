@@ -1,8 +1,9 @@
 {
   "manifest_version": 3,
-  "name": "Job Board Cleaner",
-  "version": "1.0",
-  "description": "Cache les offres d'emploi indésirables des job boards.",
+  "default_locale": "fr",
+  "name": "__MSG_appName__",
+  "description": "__MSG_appDescription__",
+  "version": "1.1",
   "permissions": [
     "storage",
     "contextMenus",
