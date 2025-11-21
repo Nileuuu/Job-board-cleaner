@@ -1,0 +1,39 @@
+{
+  "manifest_version": 3,
+  "name": "Job Board Cleaner",
+  "version": "1.0",
+  "description": "Cache les offres d'emploi indésirables des job boards.",
+  "permissions": [
+    "storage",
+    "contextMenus",
+    "scripting",
+    "activeTab"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_icon": "images/icon.png"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "*://*.linkedin.com/jobs/*",
+        "*://*.indeed.com/*",
+        "*://*.indeed.fr/*",
+        "*://*.welcometothejungle.com/*",
+        "*://*.hellowork.com/*",
+        "*://*.google.com/search*",
+        "*://*.apec.fr/*"
+      ],
+      "js": [
+        "scripts/content.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+  "icons": {
+    "48": "images/icon.png"
+  }
+}

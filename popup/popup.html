@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Job Board Cleaner</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+
+  <div class="popup-container">
+    
+    <header class="main-header">
+      <div class="header-title">
+        <h1 class="main-title">Job Board Cleaner</h1>
+        <span class="status-badge active" id="statusBadge">✅ Actif</span>
+      </div>
+      <div class="header-controls">
+        <label class="toggle-switch" title="Activer/Désactiver le filtrage">
+          <input type="checkbox" id="toggleEnabled">
+          <span class="slider"></span>
+        </label>
+        <button id="goToSettingsButton" class="futuristic-button icon-button" title="Paramètres">⚙️</button>
+      </div>
+    </header>
+
+    <div id="addView" class="view active">
+      <div class="card counter-card gradient-border">
+        <div class="counter-label">Offres masquées au total</div>
+        <div id="totalCounter" class="counter-value">0</div>
+      </div>
+
+      <div class="card input-card">
+        <h2 class="section-title">Ajouter un mot à bloquer</h2>
+        <div class="add-section">
+          <input type="text" id="newNameInput" placeholder="Ex: École..." class="futuristic-input">
+          <button id="addButton" title="Ajouter" class="futuristic-button">+</button>
+        </div>
+      </div>
+
+      <div class="nav-card">
+        <button id="goToNamesButton" class="futuristic-button full-width">
+          Gérer les mots bloqués <span class="icon">→</span>
+        </button>
+        <button id="goToLogButton" class="futuristic-button full-width">
+          Journal des offres masquées <span class="icon">→</span>
+        </button>
+      </div>
+
+      <div class="bmc-container">
+        <a href="https://www.buymeacoffee.com/Nileuuu" target="_blank">
+          <img src="https://cdn.buymeacoffee.com/buttons/v2/arial-yellow.png" alt="Buy Me A Coffee" class="bmc-image">
+        </a>
+      </div>
+
+    </div>
+
+    <div id="namesView" class="view">
+      <header class="sub-header">
+        <button id="backFromNamesButton" class="futuristic-button small-button">← Retour</button>
+        <h1 class="sub-title">Mots bloqués</h1>
+      </header>
+      <div class="card list-card scrollable-list">
+        <ul id="blockedNamesList" class="blocked-list">
+          <li class="empty-state">Aucun mot bloqué</li>
+        </ul>
+      </div>
+    </div>
+
+    <div id="logView" class="view">
+      <header class="sub-header">
+        <button id="backFromLogButton" class="futuristic-button small-button">← Retour</button>
+        <h1 class="sub-title">Journal des masquages</h1>
+      </header>
+      <p class="subtitle">Les 100 dernières offres masquées.</p>
+      <div class="card list-card scrollable-list">
+        <ul id="blockedOffersLog" class="blocked-list log-list">
+          <li class="empty-state">Aucune offre masquée pour l'instant.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div id="settingsView" class="view">
+      <header class="sub-header">
+        <button id="backFromSettingsButton" class="futuristic-button small-button">← Retour</button>
+        <h1 class="sub-title">Paramètres</h1>
+      </header>
+      
+      <div class="card">
+        <h2 class="section-title" style="text-align: left; margin-bottom: 15px;">Mode de blocage</h2>
+        <div class="setting-option-group">
+          <label class="setting-option">
+            <input type="radio" id="modeHide" name="blockMode" value="hide">
+            <div class="option-content">
+              <strong>Masquer (Recommandé)</strong>
+              <span>Rend l'offre totalement invisible.</span>
+            </div>
+          </label>
+          <label class="setting-option">
+            <input type="radio" id="modeFade" name="blockMode" value="fade">
+            <div class="option-content">
+              <strong>Griser</strong>
+              <span>Rend l'offre transparente.</span>
+            </div>
+          </label>
+        </div>
+      </div>
+      
+      <div class="card danger-zone">
+        <h2 class="section-title" style="text-align: left; margin-bottom: 15px;">Zone de danger</h2>
+        <button id="clearDataButton" class="futuristic-button danger-button">
+          Réinitialiser l'extension
+        </button>
+        <p class="subtitle" style="text-align: left; padding: 0; margin-top: 10px; font-size: 11px;">Ceci effacera tous vos mots bloqués, votre compteur et votre journal.</p>
+      </div>
+    </div>
+    
+  </div> <script src="popup.js"></script>
+</body>
+</html>
