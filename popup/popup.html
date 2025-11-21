@@ -7,7 +7,6 @@
   <link rel="stylesheet" href="popup.css">
 </head>
 <body>
-
   <div class="popup-container">
     
     <header class="main-header">
@@ -52,7 +51,6 @@
           <img src="https://cdn.buymeacoffee.com/buttons/v2/arial-yellow.png" alt="Buy Me A Coffee" class="bmc-image">
         </a>
       </div>
-
     </div>
 
     <div id="namesView" class="view">
@@ -62,7 +60,7 @@
       </header>
       <div class="card list-card scrollable-list">
         <ul id="blockedNamesList" class="blocked-list">
-          <li class="empty-state">Aucun mot bloqué</li>
+          <li class="empty-state">Chargement...</li>
         </ul>
       </div>
     </div>
@@ -70,12 +68,12 @@
     <div id="logView" class="view">
       <header class="sub-header">
         <button id="backFromLogButton" class="futuristic-button small-button">← Retour</button>
-        <h1 class="sub-title">Journal des masquages</h1>
+        <h1 class="sub-title">Journal</h1>
       </header>
       <p class="subtitle">Les 100 dernières offres masquées.</p>
       <div class="card list-card scrollable-list">
         <ul id="blockedOffersLog" class="blocked-list log-list">
-          <li class="empty-state">Aucune offre masquée pour l'instant.</li>
+          <li class="empty-state">Aucune offre masquée.</li>
         </ul>
       </div>
     </div>
@@ -92,29 +90,48 @@
           <label class="setting-option">
             <input type="radio" id="modeHide" name="blockMode" value="hide">
             <div class="option-content">
-              <strong>Masquer (Recommandé)</strong>
-              <span>Rend l'offre totalement invisible.</span>
+              <strong>Masquer</strong>
+              <span>Invisible (Recommandé).</span>
             </div>
           </label>
           <label class="setting-option">
             <input type="radio" id="modeFade" name="blockMode" value="fade">
             <div class="option-content">
               <strong>Griser</strong>
-              <span>Rend l'offre transparente.</span>
+              <span>Semi-transparent.</span>
             </div>
           </label>
         </div>
       </div>
+
+      <div class="card">
+        <h2 class="section-title" style="text-align: left;">Sauvegarde</h2>
+        <div class="add-section" style="flex-direction: column; gap: 10px;">
+           <button id="exportButton" class="futuristic-button full-width">📤 Exporter la configuration</button>
+           <button id="importButton" class="futuristic-button full-width">📥 Importer une configuration</button>
+           <input type="file" id="importFileInput" accept=".json" style="display: none;">
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 class="section-title" style="text-align: left;">Avancé (CSS)</h2>
+        <p class="subtitle" style="text-align: left; margin-bottom: 8px;">Ajouter des sélecteurs CSS personnalisés pour détecter des offres sur d'autres sites.</p>
+        <div class="add-section">
+          <input type="text" id="newSelectorInput" placeholder=".ma-classe-job" class="futuristic-input">
+          <button id="addSelectorButton" title="Ajouter" class="futuristic-button">+</button>
+        </div>
+        <ul id="customSelectorsList" class="blocked-list" style="margin-top: 10px;">
+           </ul>
+      </div>
       
       <div class="card danger-zone">
-        <h2 class="section-title" style="text-align: left; margin-bottom: 15px;">Zone de danger</h2>
         <button id="clearDataButton" class="futuristic-button danger-button">
-          Réinitialiser l'extension
+          Tout réinitialiser
         </button>
-        <p class="subtitle" style="text-align: left; padding: 0; margin-top: 10px; font-size: 11px;">Ceci effacera tous vos mots bloqués, votre compteur et votre journal.</p>
       </div>
     </div>
     
-  </div> <script src="popup.js"></script>
+  </div>
+  <script src="popup.js"></script>
 </body>
 </html>

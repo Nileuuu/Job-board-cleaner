@@ -112,11 +112,9 @@ body {
   border-radius: 12px;
   padding: 2px;
   background: linear-gradient(45deg, #a72dff, #00c6ff);
-  -webkit-mask: 
-    linear-gradient(#fff 0 0) content-box, 
-    linear-gradient(#fff 0 0);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
-          mask-composite: exclude;
+  mask-composite: exclude;
   pointer-events: none;
 }
 
@@ -210,14 +208,18 @@ body {
   box-shadow: 0 6px 20px rgba(0, 224, 255, 0.3);
 }
 
-.futuristic-button.small-button {
+.futuristic-button.small-button, .futuristic-button.icon-button {
   padding: 8px 12px;
   font-size: 12px;
   background: #4a3363;
   box-shadow: none;
 }
 
-.futuristic-button.small-button:hover {
+.futuristic-button.icon-button {
+  font-size: 16px;
+}
+
+.futuristic-button.small-button:hover, .futuristic-button.icon-button:hover {
   background: #5a4073;
   transform: none;
   box-shadow: none;
@@ -230,19 +232,6 @@ body {
 .futuristic-button .icon {
   font-size: 1.2em;
   line-height: 1;
-}
-
-.futuristic-button.icon-button {
-  padding: 8px 12px;
-  font-size: 16px;
-  background: #4a3363;
-  box-shadow: none;
-}
-
-.futuristic-button.icon-button:hover {
-  background: #5a4073;
-  transform: none;
-  box-shadow: none;
 }
 
 .toggle-switch {
@@ -325,7 +314,6 @@ input:checked + .slider:before {
   background: linear-gradient(45deg, #bd58ff, #33d1ff);
 }
 
-
 .blocked-list {
   list-style: none;
   padding: 0;
@@ -381,10 +369,6 @@ input:checked + .slider:before {
   text-overflow: ellipsis;
   background-color: #1f1433;
   border: 1px solid #2a1f40;
-}
-
-.log-list li span {
-  flex-grow: 1;
 }
 
 .setting-option-group {

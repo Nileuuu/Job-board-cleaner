@@ -1,4 +1,4 @@
-const JOB_CARD_SELECTORS = [
+const DEFAULT_JOB_SELECTORS = [
   '[data-id-storage-target]',
   '.job_seen_beacon',
   '[data-testid="slider_item"]',
@@ -21,31 +21,29 @@ function escapeRegExp(string) {
   return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-function hideListings(namesToBlock, mode) {
+function hideListings(namesToBlock, mode, customSelectors = []) {
   if (!namesToBlock || namesToBlock.length === 0) return;
 
-  const blockedPatterns = namesToBlock.map(name => {
-    return new RegExp(escapeRegExp(name), 'i');
-  });
+  const allSelectors = [...DEFAULT_JOB_SELECTORS, ...customSelectors];
+  const validSelectors = allSelectors.filter(s => s && s.trim().length > 0);
+  
+  if (validSelectors.length === 0) return;
 
-  const potentialListings = document.querySelectorAll(JOB_CARD_SELECTORS.join(','));
+  const blockedPatterns = namesToBlock.map(name => new RegExp(escapeRegExp(name), 'i'));
+  const potentialListings = document.querySelectorAll(validSelectors.join(','));
 
   let newlyBlockedCount = 0;
   let newOffersText = [];
 
   potentialListings.forEach(item => {
-    if (item.hasAttribute(HIDDEN_ATTR)) return;
-    if (item.closest(`[${HIDDEN_ATTR}]`)) return;
+    if (item.hasAttribute(HIDDEN_ATTR) || item.closest(`[${HIDDEN_ATTR}]`)) return;
+    if (item.offsetParent === null) return;
 
-    if (item.offsetParent === null) {
-      return;
-    }
-    
     const itemText = item.textContent;
     if (!itemText) return;
 
     const isBlocked = blockedPatterns.some(pattern => pattern.test(itemText));
-    
+
     if (isBlocked) {
       if (mode === 'fade') {
         item.style.opacity = '0.5';
@@ -54,34 +52,33 @@ function hideListings(namesToBlock, mode) {
       } else {
         item.style.display = 'none';
       }
-      
+
       item.setAttribute(HIDDEN_ATTR, 'true');
-      
       newlyBlockedCount++;
-      const offerTextContent = item.textContent.replace(/\s+/g, ' ').trim().substring(0, 150) + "...";
+      
+      const offerTextContent = itemText.replace(/\s+/g, ' ').trim().substring(0, 150) + "...";
       newOffersText.push(offerTextContent);
     }
   });
 
   if (newlyBlockedCount > 0) {
-    chrome.storage.local.get(['totalBlockedCount'], (res) => {
+    chrome.storage.local.get(['totalBlockedCount', 'blockedOffersLog'], (res) => {
       if (chrome.runtime.lastError) return;
-      let total = (res.totalBlockedCount || 0) + newlyBlockedCount;
-      chrome.storage.local.set({ totalBlockedCount: total });
-    });
-
-    chrome.storage.local.get(['blockedOffersLog'], (res) => {
-      if (chrome.runtime.lastError) return;
+      
+      const total = (res.totalBlockedCount || 0) + newlyBlockedCount;
       let log = res.blockedOffersLog || [];
       log = [...newOffersText, ...log].slice(0, 100);
-      chrome.storage.local.set({ blockedOffersLog: log });
+      
+      chrome.storage.local.set({ 
+        totalBlockedCount: total,
+        blockedOffersLog: log 
+      });
     });
   }
 }
 
 function showAllListings() {
-  const hiddenListings = document.querySelectorAll(`[${HIDDEN_ATTR}]`);
-  hiddenListings.forEach(item => {
+  document.querySelectorAll(`[${HIDDEN_ATTR}]`).forEach(item => {
     item.style.display = '';
     item.style.opacity = '';
     item.style.filter = '';
@@ -91,14 +88,12 @@ function showAllListings() {
 }
 
 function updateListingStyles(mode) {
-  const hiddenListings = document.querySelectorAll(`[${HIDDEN_ATTR}]`);
-  
-  hiddenListings.forEach(item => {
+  document.querySelectorAll(`[${HIDDEN_ATTR}]`).forEach(item => {
     item.style.display = '';
     item.style.opacity = '';
     item.style.filter = '';
     item.style.pointerEvents = '';
-    
+
     if (mode === 'fade') {
       item.style.opacity = '0.5';
       item.style.filter = 'grayscale(80%)';
@@ -110,37 +105,34 @@ function updateListingStyles(mode) {
 }
 
 function updateBadgeCount() {
-  const hiddenItems = document.querySelectorAll(`[${HIDDEN_ATTR}]`);
   let count = 0;
-  
-  hiddenItems.forEach(item => {
+  document.querySelectorAll(`[${HIDDEN_ATTR}]`).forEach(item => {
     if (!item.parentElement.closest(`[${HIDDEN_ATTR}]`)) {
       count++;
     }
   });
 
-  chrome.runtime.sendMessage({ action: 'updateCount', count: count }, () => {
-    if (chrome.runtime.lastError) {}
-  });
+  chrome.runtime.sendMessage({ action: 'updateCount', count: count }).catch(() => {});
 }
 
 function runFilter(fullReset = false) {
-  chrome.storage.local.get(['isEnabled', 'blockedNames', 'blockMode'], result => {
+  chrome.storage.sync.get(['isEnabled', 'blockedNames', 'blockMode', 'customSelectors'], result => {
     if (chrome.runtime.lastError) return;
-    
+
     if (fullReset) {
       showAllListings();
     }
 
-    const isEnabled = result.isEnabled === undefined ? true : result.isEnabled;
+    const isEnabled = result.isEnabled ?? true;
     const blockMode = result.blockMode || 'hide';
-    
+    const customSelectors = result.customSelectors || [];
+
     if (isEnabled) {
-      hideListings(result.blockedNames, blockMode);
+      hideListings(result.blockedNames, blockMode, customSelectors);
     } else {
       showAllListings();
     }
-    
+
     updateBadgeCount();
   });
 }
@@ -152,22 +144,22 @@ const observer = new MutationObserver(() => {
   clearTimeout(debounceTimer);
   debounceTimer = setTimeout(() => runFilter(false), 500);
 });
+
 observer.observe(document.body, { childList: true, subtree: true });
 
 chrome.storage.onChanged.addListener((changes, namespace) => {
-  if (chrome.runtime.lastError) return;
-  if (namespace !== 'local') return;
-
-  if (changes.isEnabled || changes.blockedNames) {
-    runFilter(true);
-  } else if (changes.blockMode) {
-    chrome.storage.local.get(['isEnabled'], result => {
-      if (chrome.runtime.lastError) return;
-      const isEnabled = result.isEnabled === undefined ? true : result.isEnabled;
-      if (isEnabled) {
-        const newMode = changes.blockMode.newValue || 'hide';
-        updateListingStyles(newMode);
-      }
-    });
+  if (namespace === 'sync') {
+    if (changes.isEnabled || changes.blockedNames || changes.customSelectors) {
+      runFilter(true);
+    } else if (changes.blockMode) {
+       const newMode = changes.blockMode.newValue || 'hide';
+       updateListingStyles(newMode);
+    }
   }
+});
+
+chrome.runtime.onMessage.addListener((msg) => {
+    if (msg.action === 'refreshFilters') {
+        runFilter(false);
+    }
 });
